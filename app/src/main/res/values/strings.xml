@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">WebServiceRV</string>
+    <string name="titulo">Prueba de Web Service</string>
+    <string name="selection">Seleccione la libreria que utilizara:</string>
+    <string name="action">Actualizar</string>
+    <string name="data" />
+</resources>

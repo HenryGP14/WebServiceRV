@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="optionWebService">
+        <item>Seleccionar</item>
+        <item>Retrofit</item>
+        <item>Volley</item>
+    </string-array>
+</resources>
