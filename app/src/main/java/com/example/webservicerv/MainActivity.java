@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -133,7 +134,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnActualizar_Click(View view)
     {
-        getKushkipagoRetrofit();
-        //getKushkipagoVolley();
+        if(spOption.getSelectedItem().toString().toUpperCase().equals("Retrofit".toUpperCase()))
+        {
+            txtdataKushki.setText("");
+            getKushkipagoRetrofit();
+        }
+        else if(spOption.getSelectedItem().toString().toUpperCase().equals("Volley".toUpperCase()))
+        {
+            txtdataKushki.setText("");
+            getKushkipagoVolley();
+        }
+        else
+        {
+            Toast.makeText(spOption.getContext(), "Seleccionar una librería para mostrar datos", Toast.LENGTH_LONG).show();
+        }
+        //Toast.makeText(spOption.getContext(), "Selección: " + spOption.getSelectedItem(), Toast.LENGTH_LONG).show();
     }
 }
