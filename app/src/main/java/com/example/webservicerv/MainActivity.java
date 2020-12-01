@@ -8,10 +8,22 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.webservicerv.Interface.KushkipagosR;
 import com.example.webservicerv.Model.DataKushki;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     Spinner spOption;
     TextView txtdataKushki;
+    RequestQueue requestQueue;
+
+    private final String URL = "https://api-uat.kushkipagos.com/transfer/v1/bankList";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         spOption = findViewById(R.id.spLibrary);
         txtdataKushki = findViewById(R.id.txtDataKushki);
+        requestQueue = Volley.newRequestQueue(this);
 
         ArrayAdapter<CharSequence> listOption = ArrayAdapter.createFromResource(this, R.array.optionWebService,
                 android.R.layout.simple_spinner_item);
@@ -37,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         spOption.setAdapter(listOption);
     }
 
-    private void getKushkipago()
+    private void getKushkipagoRetrofit()
     {
         Retrofit retrofit = new  Retrofit.Builder().baseUrl("https://api-uat.kushkipagos.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -70,14 +86,54 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<DataKushki>> call, Throwable t) {
-                txtdataKushki.setText(t.getMessage());
+                String msj = "Mensaje de error: " + t.getMessage();
+                txtdataKushki.setText(msj);
             }
         });
 
     }
 
+    private void getKushkipagoVolley()
+    {
+        JsonArrayRequest dataVolley = new JsonArrayRequest(
+                Request.Method.GET, URL, null,
+                response -> {
+                    int size = response.length();
+                    for(int i = 0; i < size; i++)
+                    {
+                        try {
+                            JSONObject objet = new JSONObject(response.get(i).toString());
+                            String content = "";
+                            content += "code: " + objet.getString("code") + "\n";
+                            content += "name: " + objet.getString("name") + "\n";
+
+                            txtdataKushki.append(content);
+                        } catch (JSONException e) {
+                            String msj = "Mensaje de error: " + e.getMessage();
+                            txtdataKushki.setText(msj);
+                        }
+
+                    }
+                },
+                error -> {
+                    String msj = "Mensaje de error: " + error.getMessage();
+                    txtdataKushki.setText(msj);
+                }
+        )
+        {
+            public Map getHeaders()
+            {
+                HashMap headers = new HashMap();
+                headers.put("Public-Merchant-Id","8376ea5f58f44f2fb3304faddcfd9660");
+                return headers;
+            }
+        };
+        requestQueue.add(dataVolley);
+    }
+
     public void btnActualizar_Click(View view)
     {
-        getKushkipago();
+        getKushkipagoRetrofit();
+        //getKushkipagoVolley();
     }
 }
