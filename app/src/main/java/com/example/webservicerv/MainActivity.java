@@ -2,10 +2,16 @@ package com.example.webservicerv;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Instanciar los controles del activity_main
         txtTitel = findViewById(R.id.txtMensaje);
 
         txtdataKushki = findViewById(R.id.txtDataKushki);
@@ -53,27 +60,36 @@ public class MainActivity extends AppCompatActivity {
 
         spOption = findViewById(R.id.spLibrary);
 
+        //Instanciar el objeto requestQueue con la librería de Volley
         requestQueue = Volley.newRequestQueue(this);
 
+        //Crear un ArrayAdapter para colocar en el Spinner de la App
         ArrayAdapter<CharSequence> listOption = ArrayAdapter.createFromResource(this, R.array.optionWebService,
                 android.R.layout.simple_spinner_item);
-
+        //Colocar la lista de datos en el Spinner
         spOption.setAdapter(listOption);
     }
 
+    //Permite obtener todos los datos que se encuentrá en la API correspondiente en este caso "Kushki Pagos"
+
     private void getKushkipagoRetrofit()
     {
+        //Se crea una variable tipo Retrofit para obtener los datos JSON de la API correspondiente, utilizando su convertidor
         Retrofit retrofit = new  Retrofit.Builder().baseUrl("https://api-uat.kushkipagos.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        //Se crea una variable de la interfaz que me permite obtener los datos de la API
         KushkipagosR kushkipagosR =  retrofit.create(KushkipagosR.class);
 
+        //Mapear los datos tipo JSON utilizando las variables de la librería de Retrofit
         Call<List<DataKushki>> call = kushkipagosR.getKushki();
 
+        //Mostrar los datos que encontro Retrofit en la API que fue asignada
         call.enqueue(new Callback<List<DataKushki>>() {
             @Override
             public void onResponse(Call<List<DataKushki>> call, Response<List<DataKushki>> response) {
+                //Permite identificar si existe un error tipo HTTP esta me identifica que código de estado HTTP me retorna
                 if(!response.isSuccessful())
                 {
                     txtdataKushki.setText("Código: " + response.code());
@@ -82,18 +98,25 @@ public class MainActivity extends AppCompatActivity {
 
                 List<DataKushki> kushkiList = response.body();
 
+                //Mostrar los datos en el TextView
                 for (DataKushki data: kushkiList)
                 {
-                    String content = "";
-                    content += "code: " + data.getCode() + "\n";
-                    content += "name: " + data.getName() + "\n";
+                    SpannableString myTextCode = new SpannableString("Código: " + data.getCode() + "\n");
+                    SpannableString myTextName = new SpannableString("Nombre: " + data.getName() + "\n\n");
+                    StyleSpan bold = new StyleSpan(Typeface.BOLD);
+                    StyleSpan bold2 = new StyleSpan(Typeface.BOLD);
 
-                    txtdataKushki.append(content);
+                    myTextCode.setSpan(bold, 0 , 7, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    myTextName.setSpan(bold2, 0 , 7, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+                    txtdataKushki.append(myTextCode);
+                    txtdataKushki.append(myTextName);
                 }
             }
 
             @Override
             public void onFailure(Call<List<DataKushki>> call, Throwable t) {
+                //Mostrar mensaje de error
                 String msj = "Mensaje de error: " + t.getMessage();
                 txtdataKushki.setText(msj);
             }
@@ -101,8 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Permite obtener todos los datos que se encuentrá en la API correspondiente en este caso "Kushki Pagos"
     private void getKushkipagoVolley()
     {
+        //Declara una variable JsonArrayRequest para obtener los datos tipo JSON de la API
+        //En vez de utilizar nuevas instacias de objetos, se utiliza lambda
         JsonArrayRequest dataVolley = new JsonArrayRequest(
                 Request.Method.GET, URL, null,
                 response -> {
@@ -110,12 +136,18 @@ public class MainActivity extends AppCompatActivity {
                     for(int i = 0; i < size; i++)
                     {
                         try {
-                            JSONObject objet = new JSONObject(response.get(i).toString());
-                            String content = "";
-                            content += "code: " + objet.getString("code") + "\n";
-                            content += "name: " + objet.getString("name") + "\n";
+                            JSONObject data = new JSONObject(response.get(i).toString());
 
-                            txtdataKushki.append(content);
+                            SpannableString myTextCode = new SpannableString("Código: " + data.getString("code") + "\n");
+                            SpannableString myTextName = new SpannableString("Nombre: " + data.getString("name") + "\n\n");
+                            StyleSpan bold = new StyleSpan(Typeface.BOLD);
+                            StyleSpan bold2 = new StyleSpan(Typeface.BOLD);
+
+                            myTextCode.setSpan(bold, 0 , 7, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                            myTextName.setSpan(bold2, 0 , 7, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+                            txtdataKushki.append(myTextCode);
+                            txtdataKushki.append(myTextName);
                         } catch (JSONException e) {
                             String msj = "Mensaje de error: " + e.getMessage();
                             txtdataKushki.setText(msj);
@@ -145,10 +177,12 @@ public class MainActivity extends AppCompatActivity {
         txtdataKushki.setText("");
         if(spOption.getSelectedItem().toString().toUpperCase().equals("Retrofit".toUpperCase()))
         {
+            Toast.makeText(this, "Su petición está siendo procesada.....", Toast.LENGTH_LONG).show();
             getKushkipagoRetrofit();
         }
         else if(spOption.getSelectedItem().toString().toUpperCase().equals("Volley".toUpperCase()))
         {
+            Toast.makeText(this, "Su petición está siendo procesada.....", Toast.LENGTH_LONG).show();
             getKushkipagoVolley();
         }
         else
@@ -156,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
             txtTitel.setText("Título de librería");
             Toast.makeText(spOption.getContext(), "Seleccionar una librería para mostrar datos", Toast.LENGTH_LONG).show();
         }
+
         //Toast.makeText(spOption.getContext(), "Selección: " + spOption.getSelectedItem(), Toast.LENGTH_LONG).show();
     }
+
 }
