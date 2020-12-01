@@ -3,6 +3,7 @@ package com.example.webservicerv;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -35,7 +36,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     Spinner spOption;
-    TextView txtdataKushki;
+    TextView txtdataKushki, txtTitel;
     RequestQueue requestQueue;
 
     private final String URL = "https://api-uat.kushkipagos.com/transfer/v1/bankList";
@@ -44,8 +45,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        spOption = findViewById(R.id.spLibrary);
+
+        txtTitel = findViewById(R.id.txtMensaje);
+
         txtdataKushki = findViewById(R.id.txtDataKushki);
+        txtdataKushki.setMovementMethod(new ScrollingMovementMethod());
+
+        spOption = findViewById(R.id.spLibrary);
+
         requestQueue = Volley.newRequestQueue(this);
 
         ArrayAdapter<CharSequence> listOption = ArrayAdapter.createFromResource(this, R.array.optionWebService,
@@ -134,18 +141,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnActualizar_Click(View view)
     {
+        txtTitel.setText("Utilizando la librería " + spOption.getSelectedItem());
+        txtdataKushki.setText("");
         if(spOption.getSelectedItem().toString().toUpperCase().equals("Retrofit".toUpperCase()))
         {
-            txtdataKushki.setText("");
             getKushkipagoRetrofit();
         }
         else if(spOption.getSelectedItem().toString().toUpperCase().equals("Volley".toUpperCase()))
         {
-            txtdataKushki.setText("");
             getKushkipagoVolley();
         }
         else
         {
+            txtTitel.setText("Título de librería");
             Toast.makeText(spOption.getContext(), "Seleccionar una librería para mostrar datos", Toast.LENGTH_LONG).show();
         }
         //Toast.makeText(spOption.getContext(), "Selección: " + spOption.getSelectedItem(), Toast.LENGTH_LONG).show();

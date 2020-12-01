@@ -10,7 +10,7 @@ import retrofit2.http.Headers;
 
 public interface KushkipagosR {
     @Headers("Public-Merchant-Id: 8376ea5f58f44f2fb3304faddcfd9660")
-    @GET("transfer/v1/bankList")
+    @GET("transfer-subscriptions/v1/bankList")
     Call< List<DataKushki> > getKushki();
 
 }

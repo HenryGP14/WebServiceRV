@@ -4,4 +4,5 @@
     <string name="selection">Seleccione la libreria que utilizara:</string>
     <string name="action">Actualizar</string>
     <string name="data" />
+    <string name="titel">Título de librería</string>
 </resources>
